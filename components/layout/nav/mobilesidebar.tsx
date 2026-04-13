@@ -21,7 +21,7 @@ type MobileSidebarProps = {
 export function MobileSidebar({ children }: MobileSidebarProps) {
   return (
     <Sheet>
-      <SheetTrigger asChild>{children}</SheetTrigger>
+      <SheetTrigger>{children}</SheetTrigger>
 
       <SheetContent side="left" className="w-72 border-zinc-800 bg-zinc-950 p-0 text-white">
         <div className="border-b border-zinc-800 px-6 py-5">

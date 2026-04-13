@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MLBB Draft Plataform",
+  title: "MLBB Draft Plataforma",
   description: "Plataforma avançada de draft para Mobile Legends que analisa picks, bans, sinergias e counters em tempo real, ajudando jogadores a tomar decisões estratégicas com base no meta competitivo.",
   icons: {
     icon: "/logo-tmt.svg",

@@ -84,7 +84,7 @@ export function HeroCard({ hero }: HeroCardProps) {
             ))}
           </div>
 
-          <DialogTrigger asChild>
+          <DialogTrigger>
             <button className="mt-5 w-full rounded-2xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800">
               Ver detalhes
             </button>
