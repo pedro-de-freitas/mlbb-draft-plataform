@@ -55,7 +55,7 @@ export const heroes: Hero[] = [
   { id: 46, name: "Gord", roles: ["Mid"], specialty: "Mage", damageType: "Magic", tags: ["DPS", "Poke"] },
   { id: 47, name: "Granger", roles: ["Gold", "Jungle"], specialty: "Marksman", damageType: "Physical", tags: ["Burst", "Early"] },
   { id: 48, name: "Grock", roles: ["Roam", "EXP"], specialty: "Tank", damageType: "Physical", tags: ["Frontline", "Utility", "Engage"] },
-  { id: 49, name: "Guinevere", roles: ["EXP", "Roam"], specialty: "Fighter / Mage", damageType: "Magic", tags: ["Burst", "CC"] },
+  { id: 49, name: "Guinevere", roles: ["EXP", "Roam", "Jungle"], specialty: "Fighter / Mage", damageType: "Magic", tags: ["Burst", "CC"] },
   { id: 50, name: "Gusion", roles: ["Jungle"], specialty: "Assassin / Mage", damageType: "Magic", tags: ["Burst", "Pickoff"] },
 
   { id: 51, name: "Hanabi", roles: ["Gold"], specialty: "Marksman", damageType: "Physical", tags: ["DPS", "Scaling"] },
