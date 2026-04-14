@@ -1,5 +1,5 @@
 import { DraftEntry } from "@/types/draft"
-import { Hero } from "@/types/hero"
+import { Hero, HeroRole } from "@/types/hero"
 import { heroes } from "@/lib/data"
 import { getHeroMatchup } from "./hero-matchup"
 import { getMetaScore } from "./meta-utils"
@@ -16,6 +16,15 @@ function countTag(team: DraftEntry[], tag: string) {
   ).length
 }
 
+function getEnemyFilledRoles(enemy: DraftEntry[]): Set<HeroRole> {
+  return new Set(
+    enemy
+      .filter((entry) => entry.type === "pick")
+      .map((entry) => entry.assignedRole ?? entry.hero.roles[0])
+      .filter((role): role is HeroRole => Boolean(role))
+  )
+}
+
 export function suggestBans(
   team: DraftEntry[],
   enemy: DraftEntry[],
@@ -25,8 +34,19 @@ export function suggestBans(
 
   const teamHeroNames = team.map((p) => p.hero.name)
 
+  /**
+   * 🔥 NOVO: roles já preenchidas pelo inimigo
+   */
+  const enemyFilledRoles = getEnemyFilledRoles(enemy)
+
   for (const hero of heroes) {
     if (usedNames.includes(hero.name)) continue
+
+    const heroMainRole = hero.roles[0]
+
+    if (enemyFilledRoles.has(heroMainRole)) {
+      continue
+    }
 
     let score = 0
     const reasons: string[] = []

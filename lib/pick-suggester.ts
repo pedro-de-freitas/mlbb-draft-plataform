@@ -21,11 +21,25 @@ function hasTag(team: DraftEntry[], tag: string) {
 }
 
 function countTag(team: DraftEntry[], tag: string) {
-  return team.filter((entry) => entry.hero.tags.includes(tag as Hero["tags"][number])).length
+  return team.filter((entry) =>
+    entry.hero.tags.includes(tag as Hero["tags"][number])
+  ).length
 }
 
 function getAssignedRoles(team: DraftEntry[]) {
-  return new Set(team.map((entry) => entry.assignedRole).filter(Boolean))
+  return new Set(
+    team
+      .map((entry) => entry.assignedRole)
+      .filter((role): role is HeroRole => Boolean(role))
+  )
+}
+
+function getPickedMainRoles(team: DraftEntry[]) {
+  return new Set<HeroRole>(
+    team
+      .map((entry) => entry.assignedRole ?? entry.hero.roles[0])
+      .filter((role): role is HeroRole => Boolean(role))
+  )
 }
 
 function scoreHeroForTeam(
@@ -91,12 +105,18 @@ function scoreHeroForTeam(
     reasons.push("Adiciona disengage")
   }
 
-  if (teamMagicCount === 0 && (hero.damageType === "Magic" || hero.damageType === "Mixed")) {
+  if (
+    teamMagicCount === 0 &&
+    (hero.damageType === "Magic" || hero.damageType === "Mixed")
+  ) {
     score += 8
     reasons.push("Equilibra dano mágico")
   }
 
-  if (teamPhysicalCount === 0 && (hero.damageType === "Physical" || hero.damageType === "Mixed")) {
+  if (
+    teamPhysicalCount === 0 &&
+    (hero.damageType === "Physical" || hero.damageType === "Mixed")
+  ) {
     score += 8
     reasons.push("Equilibra dano físico")
   }
@@ -143,7 +163,10 @@ function scoreHeroForTeam(
     reasons.push("Bom para bater em frontlines")
   }
 
-  if (enemyHasEngage && (hero.tags.includes("Peel") || hero.tags.includes("Disengage"))) {
+  if (
+    enemyHasEngage &&
+    (hero.tags.includes("Peel") || hero.tags.includes("Disengage"))
+  ) {
     score += 8
     reasons.push("Ajuda contra engage inimigo")
   }
@@ -173,8 +196,8 @@ function scoreHeroForTeam(
     reasons.push("Flex pick")
   }
 
-  const unfilledRoleBonus = hero.roles.some((role) => !assignedRoles.has(role))
-  if (unfilledRoleBonus) {
+  const fillsUnassignedRole = hero.roles.some((role) => !assignedRoles.has(role))
+  if (fillsUnassignedRole) {
     score += 8
     reasons.push("Ajuda a fechar rota")
   }
@@ -201,21 +224,21 @@ export function suggestPicksByRole(
     Roam: [],
   }
 
+  const assignedRoles = getAssignedRoles(team)
+
   for (const hero of heroes) {
     if (usedNames.includes(hero.name)) continue
 
     const scored = scoreHeroForTeam(hero, team, enemy)
 
     for (const role of hero.roles) {
+      if (assignedRoles.has(role)) continue
+
       let roleScore = scored.score
       const reasons = [...scored.reasons]
 
-      const alreadyUsedInRole = team.some((p) => p.assignedRole === role)
-
-      if (!alreadyUsedInRole) {
-        roleScore += 10
-        reasons.push("Preenche rota")
-      }
+      roleScore += 10
+      reasons.push("Preenche rota livre")
 
       roleMap[role].push({
         hero,
@@ -242,9 +265,16 @@ export function suggestBans(
   const suggestions: BanSuggestion[] = []
 
   const teamHeroNames = team.map((p) => p.hero.name)
+  const enemyFilledRoles = getPickedMainRoles(enemy)
 
   for (const hero of heroes) {
     if (usedNames.includes(hero.name)) continue
+
+    const heroMainRole = hero.roles[0]
+
+    if (enemyFilledRoles.has(heroMainRole)) {
+      continue
+    }
 
     let score = 0
     const reasons: string[] = []

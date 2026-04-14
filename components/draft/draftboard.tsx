@@ -153,47 +153,48 @@ export function DraftBoard() {
       : "Red Side está com draft mais forte."
 
   return (
-    <div className="grid grid-cols-1 gap-6 2xl:grid-cols-[1.35fr_0.95fr]">
-      <div className="space-y-6">
-        <DraftHeader
-          currentStepLabel={currentStep ? currentStep.label : "Draft finalizado"}
-          blueScore={blueAnalysis.score}
-          redScore={redAnalysis.score}
-          winnerText={winnerText}
-          onReset={resetDraft}
+  <div className="grid grid-cols-1 gap-6 2xl:grid-cols-[1.35fr_0.95fr]">
+    <div className="order-2 2xl:order-1 space-y-6">
+      <DraftHeader
+        currentStepLabel={currentStep ? currentStep.label : "Draft finalizado"}
+        blueScore={blueAnalysis.score}
+        redScore={redAnalysis.score}
+        winnerText={winnerText}
+        onReset={resetDraft}
+      />
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <DraftTeamSection
+          side="blue"
+          enemyPicks={redPicks}
+          picks={bluePicks}
+          bans={blueBans}
+          assignments={blueAssignments}
+          analysis={blueAnalysis}
+          onAssignRole={handleAssignRole}
         />
 
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <DraftTeamSection
-            side="blue"
-            enemyPicks={redPicks}
-            picks={bluePicks}
-            bans={blueBans}
-            assignments={blueAssignments}
-            analysis={blueAnalysis}
-            onAssignRole={handleAssignRole}
-          />
-
-          <DraftTeamSection
-            side="red"
-            enemyPicks={bluePicks}
-            picks={redPicks}
-            bans={redBans}
-            assignments={redAssignments}
-            analysis={redAnalysis}
-            onAssignRole={handleAssignRole}
-          />
-        </div>
-
-        <DraftSavePanel entries={entries} />
-
-        <DraftSuggestions
-          roleSuggestions={roleSuggestions}
-          banSuggestions={banSuggestions}
-          currentActionType={currentStep?.type ?? "pick"}
+        <DraftTeamSection
+          side="red"
+          enemyPicks={bluePicks}
+          picks={redPicks}
+          bans={redBans}
+          assignments={redAssignments}
+          analysis={redAnalysis}
+          onAssignRole={handleAssignRole}
         />
       </div>
 
+      <DraftSavePanel entries={entries} />
+
+      <DraftSuggestions
+        roleSuggestions={roleSuggestions}
+        banSuggestions={banSuggestions}
+        currentActionType={currentStep?.type ?? "pick"}
+      />
+    </div>
+
+    <div className="order-1 2xl:order-2">
       <HeroList
         search={search}
         onSearchChange={setSearch}
@@ -204,5 +205,6 @@ export function DraftBoard() {
         onSelectHero={handleSelectHero}
       />
     </div>
-  )
+  </div>
+)
 }
