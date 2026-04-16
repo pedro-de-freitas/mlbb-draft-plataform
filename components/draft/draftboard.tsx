@@ -12,9 +12,14 @@ import { DraftTeamSection } from "./draft-team-section"
 import { DraftSuggestions } from "./draft-suggestions"
 import { DraftSavePanel } from "./draft-save-panel"
 import { trackDraftViewed, trackPageVisit } from "@/lib/user-activity"
+import {
+  clearCurrentDraft,
+  getCurrentDraft,
+  saveCurrentDraft,
+} from "@/lib/current-drafts"
 
 export function DraftBoard() {
-  const [entries, setEntries] = useState<DraftEntry[]>([])
+  const [entries, setEntries] = useState<DraftEntry[]>(() => getCurrentDraft())
   const [search, setSearch] = useState("")
   const [selectedRole, setSelectedRole] = useState<HeroRole | "All">("All")
 
@@ -22,6 +27,10 @@ export function DraftBoard() {
     trackPageVisit("draft")
     trackDraftViewed()
   }, [])
+
+  useEffect(() => {
+    saveCurrentDraft(entries)
+  }, [entries])
 
   const currentStep = draftSteps[entries.length]
 
@@ -143,6 +152,7 @@ export function DraftBoard() {
     setEntries([])
     setSearch("")
     setSelectedRole("All")
+    clearCurrentDraft()
   }
 
   const winnerText =
@@ -154,7 +164,7 @@ export function DraftBoard() {
 
   return (
     <div className="grid grid-cols-1 gap-6 2xl:grid-cols-[1.35fr_0.95fr]">
-      <div className="space-y-6">
+      <div className="order-2 space-y-6 2xl:order-1">
         <DraftHeader
           currentStepLabel={currentStep ? currentStep.label : "Draft finalizado"}
           blueScore={blueAnalysis.score}
@@ -194,15 +204,17 @@ export function DraftBoard() {
         />
       </div>
 
-      <HeroList
-        search={search}
-        onSearchChange={setSearch}
-        selectedRole={selectedRole}
-        onRoleChange={setSelectedRole}
-        usedHeroNames={usedHeroNames}
-        currentActionLabel={currentStep ? currentStep.label : "Draft finalizado"}
-        onSelectHero={handleSelectHero}
-      />
+      <div className="order-1 2xl:order-2">
+        <HeroList
+          search={search}
+          onSearchChange={setSearch}
+          selectedRole={selectedRole}
+          onRoleChange={setSelectedRole}
+          usedHeroNames={usedHeroNames}
+          currentActionLabel={currentStep ? currentStep.label : "Draft finalizado"}
+          onSelectHero={handleSelectHero}
+        />
+      </div>
     </div>
   )
 }
