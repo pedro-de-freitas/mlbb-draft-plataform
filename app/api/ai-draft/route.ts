@@ -1,68 +1,45 @@
+import { GoogleGenAI } from "@google/genai"
 import { NextResponse } from "next/server"
 
-export async function POST(req: Request) {
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
+})
+
+export async function POST(request: Request) {
   try {
-    const apiKey = process.env.OPENAI_API_KEY
+    const body = await request.json()
 
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "OPENAI_API_KEY não encontrada no .env.local" },
-        { status: 500 }
-      )
-    }
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: `
+Você é um coach profissional de Mobile Legends.
 
-    const { prompt } = await req.json()
+Analise este draft competitivo:
 
-    if (!prompt || typeof prompt !== "string") {
-      return NextResponse.json(
-        { error: "Prompt não enviado corretamente" },
-        { status: 400 }
-      )
-    }
+${JSON.stringify(body, null, 2)}
 
-    const openaiResponse = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-4o",
-        input: prompt,
-      }),
+Responda em português brasileiro, direto e estratégico.
+
+Formato:
+1. Resumo geral
+2. Pontos fortes do Blue
+3. Pontos fracos do Blue
+4. Pontos fortes do Red
+5. Pontos fracos do Red
+6. Melhor win condition de cada time
+7. Quem está com draft melhor e por quê
+8. Sugestão de próximo pick/ban, se o draft ainda não terminou
+`,
     })
 
-    const data = await openaiResponse.json()
-
-    if (!openaiResponse.ok) {
-      console.error("OPENAI STATUS:", openaiResponse.status)
-      console.error("OPENAI ERROR:", JSON.stringify(data, null, 2))
-
-      return NextResponse.json(
-        {
-          error: "Erro ao chamar OpenAI",
-          details: data,
-        },
-        { status: openaiResponse.status }
-      )
-    }
-
-    const text =
-  data?.output_text ||
-  data?.output?.[0]?.content?.find(
-    (item: { type: string; text?: string }) => item.type === "output_text"
-  )?.text ||
-  ""
-
-    return NextResponse.json({ text })
+    return NextResponse.json({
+      analysis: response.text,
+    })
   } catch (error) {
-    console.error("Erro interno /api/ai-draft:", error)
+    console.error("Erro Gemini draft:", error)
 
     return NextResponse.json(
-      {
-        error: "Erro interno no servidor",
-        details: String(error),
-      },
+      { error: "Erro ao analisar draft com Gemini." },
       { status: 500 }
     )
   }

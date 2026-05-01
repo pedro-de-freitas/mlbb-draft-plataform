@@ -4,9 +4,19 @@ import { Topbar } from "../nav/topbar"
 
 type AppShellProps = {
   children: ReactNode
+  layout?: "sidebar" | "topbar"
 }
 
-export function AppShell({ children }: AppShellProps) {
+export function AppShell({ children, layout = "sidebar" }: AppShellProps) {
+  if (layout === "topbar") {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-white">
+        <Topbar variant="full" />
+        <main className="flex-1 px-3 py-4 sm:px-4">{children}</main>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <div className="flex min-h-screen">
