@@ -36,13 +36,13 @@ export function HeroSelectModal({
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-black/90 backdrop-blur-xl">
-      <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4">
+    <div className="fixed inset-0 z-50 flex h-dvh flex-col overflow-hidden bg-black/90 backdrop-blur-xl">
+      <div className="shrink-0 flex items-center justify-between border-b border-slate-800 px-4 py-4 sm:px-6">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.25em] text-red-400">
             TIAMAT GG
           </p>
-          <h2 className="text-xl font-black uppercase tracking-[0.15em] text-white">
+          <h2 className="text-lg font-black uppercase tracking-[0.15em] text-white sm:text-xl">
             Seleção de Herói
           </h2>
         </div>
@@ -56,32 +56,34 @@ export function HeroSelectModal({
         </button>
       </div>
 
-      <div className="grid flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[1fr_420px]">
-        <HeroList
-          search={search}
-          onSearchChange={onSearchChange}
-          selectedRole={selectedRole}
-          onRoleChange={onRoleChange}
-          usedHeroNames={usedHeroNames}
-          onSelectHero={onSelectHero}
-        />
+      <div className="min-h-0 flex-1 overflow-hidden">
+        <div className="grid h-full min-h-0 grid-cols-1 lg:grid-cols-[1fr_420px]">
+          <HeroList
+            search={search}
+            onSearchChange={onSearchChange}
+            selectedRole={selectedRole}
+            onRoleChange={onRoleChange}
+            usedHeroNames={usedHeroNames}
+            onSelectHero={onSelectHero}
+          />
 
-        <div className="hidden flex-col border-l border-slate-800 bg-[#05070d] lg:flex">
-          <div className="border-b border-slate-800 p-4">
-            <h3 className="text-sm font-black uppercase tracking-[0.15em] text-slate-300">
-              Sugestões Inteligentes
-            </h3>
-            <p className="mt-1 text-xs text-slate-500">
-              Baseado na fase atual do draft.
-            </p>
-          </div>
+          <div className="hidden min-h-0 flex-col border-l border-slate-800 bg-[#05070d] lg:flex">
+            <div className="shrink-0 border-b border-slate-800 p-4">
+              <h3 className="text-sm font-black uppercase tracking-[0.15em] text-slate-300">
+                Sugestões Inteligentes
+              </h3>
+              <p className="mt-1 text-xs text-slate-500">
+                Baseado na fase atual do draft.
+              </p>
+            </div>
 
-          <div className="flex-1 overflow-y-auto p-4">
-            <DraftSuggestions
-              roleSuggestions={roleSuggestions}
-              banSuggestions={banSuggestions}
-              currentActionType={currentActionType}
-            />
+            <div className="min-h-0 flex-1 overflow-y-auto p-4">
+              <DraftSuggestions
+                roleSuggestions={roleSuggestions}
+                banSuggestions={banSuggestions}
+                currentActionType={currentActionType}
+              />
+            </div>
           </div>
         </div>
       </div>

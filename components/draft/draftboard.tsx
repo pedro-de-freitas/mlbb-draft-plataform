@@ -1,8 +1,8 @@
 "use client"
 
 import Image from "next/image"
-import { useEffect, useMemo, useRef, useState } from "react"
-import { RotateCcw, Save, Trash2 } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import { RotateCcw } from "lucide-react"
 import { Hero, HeroRole } from "@/types/hero"
 import { DraftEntry, TeamRoleAssignments } from "@/types/draft"
 import { analyzeTeam } from "@/lib/draft-analyzer"
@@ -17,8 +17,7 @@ import {
   getCurrentDraft,
   saveCurrentDraft,
 } from "@/lib/current-drafts"
-
-const FINISHED_DRAFTS_KEY = "mlbb-finished-drafts"
+import { saveDraft } from "@/lib/saved-draft"
 
 export function DraftBoard() {
   const [entries, setEntries] = useState<DraftEntry[]>(() => getCurrentDraft())
@@ -32,14 +31,11 @@ export function DraftBoard() {
   const [geminiAnalysis, setGeminiAnalysis] = useState("")
   const [geminiError, setGeminiError] = useState("")
 
-  const savedFinishedDraftRef = useRef<string | null>(null)
-
   useEffect(() => {
     saveCurrentDraft(entries)
   }, [entries])
 
   const currentStep = draftSteps[entries.length]
-  const isDraftFinished = !currentStep && entries.length === draftSteps.length
 
   const usedHeroNames = useMemo(
     () => entries.map((entry) => entry.hero.name),
@@ -129,47 +125,6 @@ export function DraftBoard() {
     return suggestBans(team, enemy, usedHeroNames)
   }, [currentStep, bluePicks, redPicks, usedHeroNames])
 
-  function saveDraftToStorage(name: string) {
-    const saved = localStorage.getItem(FINISHED_DRAFTS_KEY)
-    const drafts = saved ? JSON.parse(saved) : []
-
-    const draft = {
-      id: crypto.randomUUID(),
-      name,
-      entries,
-      blueAnalysis,
-      redAnalysis,
-      winnerText,
-      blueScore: blueAnalysis.score,
-      redScore: redAnalysis.score,
-      createdAt: new Date().toISOString(),
-    }
-
-    localStorage.setItem(
-      FINISHED_DRAFTS_KEY,
-      JSON.stringify([draft, ...drafts])
-    )
-
-    return draft
-  }
-
-  useEffect(() => {
-    if (!isDraftFinished) return
-
-    const signature = entries
-      .map(
-        (entry) =>
-          `${entry.stepId}-${entry.hero.name}-${entry.assignedRole ?? ""}`
-      )
-      .join("|")
-
-    if (savedFinishedDraftRef.current === signature) return
-
-    saveDraftToStorage(`Simulação ${new Date().toLocaleString("pt-BR")}`)
-
-    savedFinishedDraftRef.current = signature
-  }, [isDraftFinished, entries, blueAnalysis, redAnalysis, winnerText])
-
   function saveDraftForSimulator() {
     if (entries.length === 0) {
       setSaveMessage("Monte um draft antes de salvar.")
@@ -179,10 +134,15 @@ export function DraftBoard() {
     const name =
       draftName.trim() || `Draft ${new Date().toLocaleString("pt-BR")}`
 
-    saveDraftToStorage(name)
+    const saved = saveDraft(name, entries)
+
+    if (!saved) {
+      setSaveMessage("Não foi possível salvar o draft.")
+      return
+    }
 
     setDraftName("")
-    setSaveMessage(`Draft "${name}" salvo.`)
+    setSaveMessage(`Draft "${name}" salvo para o simulador.`)
   }
 
   async function handleGeminiAnalysis() {
@@ -260,7 +220,6 @@ export function DraftBoard() {
     setSaveMessage("")
     setGeminiAnalysis("")
     setGeminiError("")
-    savedFinishedDraftRef.current = null
     clearCurrentDraft()
   }
 
@@ -526,43 +485,6 @@ function MetricRow({
       <span className="font-bold uppercase text-slate-400">{label}</span>
       <span className="text-right font-black text-blue-400">{blue}</span>
       <span className="text-right font-black text-red-400">{red}</span>
-    </div>
-  )
-}
-
-function DraftTimeline({ currentIndex }: { currentIndex: number }) {
-  return (
-    <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-[#07111f]/90 p-4 shadow-2xl">
-      <div className="flex min-w-max items-center gap-3">
-        {draftSteps.map((step, index) => {
-          const active = index === currentIndex
-          const done = index < currentIndex
-          const isBlue = step.side === "blue"
-
-          return (
-            <div
-              key={step.id}
-              className={`relative min-w-[72px] rounded-xl border px-3 py-2 text-center ${
-                active
-                  ? isBlue
-                    ? "border-blue-400 bg-blue-500/20 text-blue-300 shadow-[0_0_25px_rgba(59,130,246,0.35)]"
-                    : "border-red-400 bg-red-500/20 text-red-300 shadow-[0_0_25px_rgba(239,68,68,0.35)]"
-                  : done
-                  ? isBlue
-                    ? "border-blue-500/30 bg-blue-500/10 text-blue-300"
-                    : "border-red-500/30 bg-red-500/10 text-red-300"
-                  : "border-slate-700 bg-slate-950 text-slate-500"
-              }`}
-            >
-              <p className="mx-auto flex h-7 w-7 items-center justify-center rounded-full border border-current text-sm font-black">
-                {step.id}
-              </p>
-              <p className="mt-2 text-xs font-black uppercase">{step.type}</p>
-              <p className="text-[10px] font-black uppercase">{step.side}</p>
-            </div>
-          )
-        })}
-      </div>
     </div>
   )
 }

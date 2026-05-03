@@ -40,8 +40,8 @@ export function HeroList({
   })
 
   return (
-    <div className="flex h-full flex-col overflow-hidden">
-      <div className="border-b border-slate-800 bg-[#05070d] p-5">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+      <div className="shrink-0 border-b border-slate-800 bg-[#05070d] p-4 sm:p-5">
         <div className="relative">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
 
@@ -53,7 +53,7 @@ export function HeroList({
           />
         </div>
 
-        <div className="mt-4 flex gap-2 overflow-x-auto">
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
           {roles.map((role) => (
             <button
               key={role}
@@ -71,19 +71,20 @@ export function HeroList({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6">
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
           {filteredHeroes.map((hero) => {
             const used = usedHeroNames.includes(hero.name)
 
             return (
               <button
                 key={hero.id}
+                type="button"
                 disabled={used}
                 onClick={() => onSelectHero(hero)}
-                className={`group relative overflow-hidden rounded-2xl border transition ${
+                className={`group relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 transition ${
                   used
-                    ? "opacity-25 grayscale"
+                    ? "cursor-not-allowed opacity-25 grayscale"
                     : "hover:scale-105 hover:border-red-500 hover:shadow-[0_0_25px_rgba(239,68,68,0.3)]"
                 }`}
               >
@@ -92,7 +93,7 @@ export function HeroList({
                   alt={hero.name}
                   width={220}
                   height={220}
-                  className="h-[140px] w-full object-cover"
+                  className="h-[110px] w-full object-cover sm:h-[140px]"
                 />
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
